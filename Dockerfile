@@ -1,15 +1,15 @@
-FROM maven:3.8.4-openjdk-11 as MVN_BUILD
+FROM maven:3.9.9-eclipse-temurin-17 AS mvn_build
 
 WORKDIR /opt/sym/
 ADD . /tmp
 RUN cd /tmp && mvn package -DskipTests -Pci -q && mv target/symphony/* /opt/sym/ \
 && cp -f /tmp/src/main/resources/docker/* /opt/sym/
 
-FROM openjdk:18-alpine
+FROM eclipse-temurin:18-jre-alpine
 LABEL maintainer="Liang Ding<845765@qq.com>"
 
 WORKDIR /opt/sym/
-COPY --from=MVN_BUILD /opt/sym/ /opt/sym/
+COPY --from=mvn_build /opt/sym/ /opt/sym/
 RUN apk add --no-cache ca-certificates tzdata ttf-dejavu
 
 ENV TZ=Asia/Shanghai
