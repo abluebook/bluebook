@@ -2,7 +2,7 @@ FROM maven:3.9.9-eclipse-temurin-17 AS mvn_build
 
 WORKDIR /opt/sym/
 ADD . /tmp
-RUN cd /tmp && mvn package -DskipTests -Pci -q && mv target/symphony/* /opt/sym/ \
+RUN cd /tmp && mvn package -DskipTests -Pci -q && mv target/symphony-bin/* /opt/sym/ \
 && cp -f /tmp/src/main/resources/docker/* /opt/sym/
 
 FROM eclipse-temurin:18-jre-alpine
