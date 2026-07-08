@@ -1319,8 +1319,8 @@
         {
           "name": "userPassword",
           "type": "String",
-          "length": 32,
-          "description": "密码（MD5）"
+          "length": 100,
+          "description": "密码（BCrypt）"
         },
         {
           "name": "userNickname",

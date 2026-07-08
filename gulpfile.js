@@ -89,6 +89,7 @@ function minLibs () {
   var jsCommonLib = [
     './src/main/resources/js/lib/jquery/jquery-3.1.0.min.js',
     './src/main/resources/js/lib/md5.js',
+    './src/main/resources/js/lib/jsencrypt.min.js',
     './src/main/resources/js/lib/reconnecting-websocket.min.js',
     './src/main/resources/js/lib/jquery/jquery.bowknot.min.js',
     './src/main/resources/js/lib/ua-parser.min.js',

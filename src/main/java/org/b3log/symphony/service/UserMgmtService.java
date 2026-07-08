@@ -45,6 +45,7 @@ import org.b3log.symphony.processor.middleware.validate.UserRegisterValidationMi
 import org.b3log.symphony.repository.*;
 import org.b3log.symphony.util.Geos;
 import org.b3log.symphony.util.Gravatars;
+import org.b3log.symphony.util.Passwords;
 import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
 
@@ -168,7 +169,7 @@ public class UserMgmtService {
             final String newName = UserExt.ANONYMOUS_USER_NAME + userNo;
             user.put(User.USER_NAME, newName);
             user.put(User.USER_EMAIL, newName + UserExt.USER_BUILTIN_EMAIL_SUFFIX);
-            user.put(User.USER_PASSWORD, DigestUtils.md5Hex(RandomStringUtils.randomAlphanumeric(8)));
+            user.put(User.USER_PASSWORD, Passwords.hash(RandomStringUtils.randomAlphanumeric(8)));
             user.put(UserExt.USER_NICKNAME, "");
             user.put(UserExt.USER_TAGS, "");
             user.put(User.USER_URL, "");

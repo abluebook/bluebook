@@ -770,19 +770,32 @@ public class SettingsProcessor {
         context.renderJSON(StatusCodes.ERR);
 
         final JSONObject requestJSONObject = context.requestJSON();
-        final String password = requestJSONObject.optString(User.USER_PASSWORD);
-        final String newPassword = requestJSONObject.optString(User.USER_NEW_PASSWORD);
+        final String password;
+        final String newPassword;
+        try {
+            password = RsaCrypts.decryptPassword(requestJSONObject.optString(User.USER_PASSWORD));
+            newPassword = RsaCrypts.decryptPassword(requestJSONObject.optString(User.USER_NEW_PASSWORD));
+        } catch (final IllegalArgumentException e) {
+            context.renderMsg(langPropsService.get("invalidPasswordLabel"));
+            return;
+        }
+
+        if (Passwords.invalidPlainPassword(newPassword)) {
+            context.renderMsg(langPropsService.get("invalidPasswordLabel"));
+            return;
+        }
 
         final JSONObject user = Sessions.getUser();
-        if (!password.equals(user.optString(User.USER_PASSWORD))) {
+        if (!Passwords.verify(password, user.optString(User.USER_PASSWORD))) {
             context.renderMsg(langPropsService.get("invalidOldPwdLabel"));
             return;
         }
 
-        user.put(User.USER_PASSWORD, newPassword);
+        user.put(User.USER_PASSWORD, Passwords.hash(newPassword));
 
         try {
             userMgmtService.updatePassword(user);
+            Sessions.logout(user.optString(Keys.OBJECT_ID), context.getResponse());
             context.renderJSON(StatusCodes.SUCC);
         } catch (final ServiceException e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();

@@ -17,7 +17,6 @@
  */
 package org.b3log.symphony.processor;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -45,10 +44,10 @@ import org.b3log.latke.util.Strings;
 import org.b3log.symphony.event.ArticleBaiduSender;
 import org.b3log.symphony.model.*;
 import org.b3log.symphony.processor.middleware.PermissionMidware;
-import org.b3log.symphony.processor.middleware.validate.UserRegister2ValidationMidware;
 import org.b3log.symphony.processor.middleware.validate.UserRegisterValidationMidware;
 import org.b3log.symphony.service.*;
 import org.b3log.symphony.util.Escapes;
+import org.b3log.symphony.util.Passwords;
 import org.b3log.symphony.util.Sessions;
 import org.b3log.symphony.util.StatusCodes;
 import org.b3log.symphony.util.Symphonys;
@@ -1348,7 +1347,7 @@ public class AdminProcessor {
 
         final boolean nameInvalid = UserRegisterValidationMidware.invalidUserName(userName);
         final boolean emailInvalid = !Strings.isEmail(email);
-        final boolean passwordInvalid = UserRegister2ValidationMidware.invalidUserPassword(password);
+        final boolean passwordInvalid = Passwords.invalidPlainPassword(password);
 
         if (nameInvalid || emailInvalid || passwordInvalid) {
             final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "admin/error.ftl");
@@ -1371,7 +1370,7 @@ public class AdminProcessor {
             final JSONObject user = new JSONObject();
             user.put(User.USER_NAME, userName);
             user.put(User.USER_EMAIL, email);
-            user.put(User.USER_PASSWORD, DigestUtils.md5Hex(password));
+            user.put(User.USER_PASSWORD, Passwords.hash(password));
             user.put(UserExt.USER_APP_ROLE, appRole);
             user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
 
@@ -1449,7 +1448,7 @@ public class AdminProcessor {
                 case User.USER_PASSWORD:
                     final String oldPwd = user.getString(name);
                     if (!oldPwd.equals(value) && StringUtils.isNotBlank(value)) {
-                        user.put(name, DigestUtils.md5Hex(value));
+                        user.put(name, Passwords.hash(value));
                     }
                     break;
                 default:

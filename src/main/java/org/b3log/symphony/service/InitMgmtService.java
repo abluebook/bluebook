@@ -17,7 +17,6 @@
  */
 package org.b3log.symphony.service;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +30,7 @@ import org.b3log.latke.service.annotation.Service;
 import org.b3log.latke.util.Ids;
 import org.b3log.symphony.model.*;
 import org.b3log.symphony.repository.*;
+import org.b3log.symphony.util.Passwords;
 import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
 
@@ -624,7 +624,7 @@ public class InitMgmtService {
             final JSONObject admin = new JSONObject();
             admin.put(User.USER_EMAIL, "admin" + UserExt.USER_BUILTIN_EMAIL_SUFFIX);
             admin.put(User.USER_NAME, "admin");
-            admin.put(User.USER_PASSWORD, DigestUtils.md5Hex("admin"));
+            admin.put(User.USER_PASSWORD, Passwords.hash("admin"));
             admin.put(UserExt.USER_LANGUAGE, DEFAULT_LANG);
             admin.put(User.USER_ROLE, Role.ROLE_ID_C_ADMIN);
             admin.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
@@ -637,7 +637,7 @@ public class InitMgmtService {
             final JSONObject comBot = new JSONObject();
             comBot.put(User.USER_EMAIL, UserExt.COM_BOT_EMAIL);
             comBot.put(User.USER_NAME, UserExt.COM_BOT_NAME);
-            comBot.put(User.USER_PASSWORD, DigestUtils.md5Hex(String.valueOf(new Random().nextInt())));
+            comBot.put(User.USER_PASSWORD, Passwords.hash(String.valueOf(new Random().nextInt())));
             comBot.put(UserExt.USER_LANGUAGE, DEFAULT_LANG);
             comBot.put(UserExt.USER_GUIDE_STEP, UserExt.USER_GUIDE_STEP_FIN);
             comBot.put(User.USER_ROLE, Role.ROLE_ID_C_DEFAULT);
@@ -649,7 +649,7 @@ public class InitMgmtService {
             someone.put(User.USER_EMAIL, UserExt.ANONYMOUS_USER_NAME + UserExt.USER_BUILTIN_EMAIL_SUFFIX);
             someone.put(User.USER_NAME, UserExt.ANONYMOUS_USER_NAME);
             someone.put(UserExt.USER_NICKNAME, UserExt.ANONYMOUS_USER_NAME);
-            someone.put(User.USER_PASSWORD, DigestUtils.md5Hex(String.valueOf(new Random().nextInt())));
+            someone.put(User.USER_PASSWORD, Passwords.hash(String.valueOf(new Random().nextInt())));
             someone.put(UserExt.USER_LANGUAGE, DEFAULT_LANG);
             someone.put(UserExt.USER_GUIDE_STEP, UserExt.USER_GUIDE_STEP_FIN);
             someone.put(User.USER_ROLE, Role.ROLE_ID_C_DEFAULT);

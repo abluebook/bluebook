@@ -44,6 +44,7 @@
 <script src="${staticServePath}/js/symbol-defs${miniPostfix}.js?${staticResourceVersion}"></script>
 <script src="${staticServePath}/js/lib/compress/libs.min.js?${staticResourceVersion}"></script>
 <script src="${staticServePath}/js/lib/vditor/dist/index.min.js?v=3.8.15"></script>
+<script src="${staticServePath}/js/crypto${miniPostfix}.js?${staticResourceVersion}"></script>
 <script src="${staticServePath}/js/common${miniPostfix}.js?${staticResourceVersion}"></script>
 <script>
   var Label = {

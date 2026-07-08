@@ -40,35 +40,37 @@ var Verify = {
                     "max": 256,
                     "msg": Label.loginNameErrorLabel
                 }]})) {
-            var requestJSONObject = {
-                nameOrEmail: $("#nameOrEmail").val().replace(/(^\s*)|(\s*$)/g, ""),
-                userPassword: calcMD5($("#loginPassword").val()),
-                rememberLogin: $("#rememberLogin").prop("checked"),
-                captcha: $('#captchaLogin').val().replace(/(^\s*)|(\s*$)/g, "")
-            };
+            SymCrypto.encryptPassword($("#loginPassword").val(), function (encryptedPassword) {
+                var requestJSONObject = {
+                    nameOrEmail: $("#nameOrEmail").val().replace(/(^\s*)|(\s*$)/g, ""),
+                    userPassword: encryptedPassword,
+                    rememberLogin: $("#rememberLogin").prop("checked"),
+                    captcha: $('#captchaLogin').val().replace(/(^\s*)|(\s*$)/g, "")
+                };
 
-            $.ajax({
-                url: Label.servePath + "/login",
-                type: "POST",
-                cache: false,
-                data: JSON.stringify(requestJSONObject),
-                success: function (result, textStatus) {
-                    if (0 === result.code) {
-                        window.location.href = goto;
-                    } else {
-                        $("#loginTip").addClass('error').html('<ul><li>' + result.msg + '</li></ul>');
+                $.ajax({
+                    url: Label.servePath + "/login",
+                    type: "POST",
+                    cache: false,
+                    data: JSON.stringify(requestJSONObject),
+                    success: function (result, textStatus) {
+                        if (0 === result.code) {
+                            window.location.href = goto;
+                        } else {
+                            $("#loginTip").addClass('error').html('<ul><li>' + result.msg + '</li></ul>');
 
-                        if (result.needCaptcha && "" !== result.needCaptcha) {
-                            $('#captchaImg').parent().show();
-                            $("#captchaImg").attr("src", Label.servePath + "/captcha/login?needCaptcha="
-                                    + result.needCaptcha + "&t=" + Math.random())
-                                    .click(function () {
-                                        $(this).attr('src', Label.servePath + "/captcha/login?needCaptcha="
-                                                + result.needCaptcha + "&t=" + Math.random())
-                                    });
+                            if (result.needCaptcha && "" !== result.needCaptcha) {
+                                $('#captchaImg').parent().show();
+                                $("#captchaImg").attr("src", Label.servePath + "/captcha/login?needCaptcha="
+                                        + result.needCaptcha + "&t=" + Math.random())
+                                        .click(function () {
+                                            $(this).attr('src', Label.servePath + "/captcha/login?needCaptcha="
+                                                    + result.needCaptcha + "&t=" + Math.random())
+                                        });
+                            }
                         }
                     }
-                }
+                });
             });
         }
     },
@@ -132,25 +134,27 @@ var Verify = {
                     "msg": Label.confirmPwdErrorLabel,
                     "type": "confirmPassword"
                 }]})) {
-            var requestJSONObject = {
-                userAppRole: $("input[name=userAppRole]:checked").val(),
-                userPassword: calcMD5($("#registerUserPassword2").val()),
-                referral: $("#referral2").val(),
-                userId: $("#userId2").val()
-            };
+            SymCrypto.encryptPassword($("#registerUserPassword2").val(), function (encryptedPassword) {
+                var requestJSONObject = {
+                    userAppRole: $("input[name=userAppRole]:checked").val(),
+                    userPassword: encryptedPassword,
+                    referral: $("#referral2").val(),
+                    userId: $("#userId2").val()
+                };
 
-            $.ajax({
-                url: Label.servePath + "/register2",
-                type: "POST",
-                cache: false,
-                data: JSON.stringify(requestJSONObject),
-                success: function (result, textStatus) {
-                    if (0 === result.code) {
-                        window.location.href = Label.servePath;
-                    } else {
-                        $("#registerTip2").addClass('error').removeClass('succ').html('<ul><li>' + result.msg + '</li></ul>');
+                $.ajax({
+                    url: Label.servePath + "/register2",
+                    type: "POST",
+                    cache: false,
+                    data: JSON.stringify(requestJSONObject),
+                    success: function (result, textStatus) {
+                        if (0 === result.code) {
+                            window.location.href = Label.servePath;
+                        } else {
+                            $("#registerTip2").addClass('error').removeClass('succ').html('<ul><li>' + result.msg + '</li></ul>');
+                        }
                     }
-                }
+                });
             });
         }
     },
@@ -208,24 +212,26 @@ var Verify = {
                     "msg": Label.confirmPwdErrorLabel,
                     "type": "confirmPassword"
                 }]})) {
-            var requestJSONObject = {
-                userPassword: calcMD5($("#rpwdUserPassword").val()),
-                userId: $("#rpwdUserId").val(),
-                code: $("#code").val()
-            };
+            SymCrypto.encryptPassword($("#rpwdUserPassword").val(), function (encryptedPassword) {
+                var requestJSONObject = {
+                    userPassword: encryptedPassword,
+                    userId: $("#rpwdUserId").val(),
+                    code: $("#code").val()
+                };
 
-            $.ajax({
-                url: Label.servePath + "/reset-pwd",
-                type: "POST",
-                cache: false,
-                data: JSON.stringify(requestJSONObject),
-                success: function (result, textStatus) {
-                    if (0 === result.code) {
-                        window.location.href = Label.servePath;
-                    } else {
-                        $("#rpwdTip").addClass('error').removeClass('succ').html('<ul><li>' + result.msg + '</li></ul>');
+                $.ajax({
+                    url: Label.servePath + "/reset-pwd",
+                    type: "POST",
+                    cache: false,
+                    data: JSON.stringify(requestJSONObject),
+                    success: function (result, textStatus) {
+                        if (0 === result.code) {
+                            window.location.href = Label.servePath;
+                        } else {
+                            $("#rpwdTip").addClass('error').removeClass('succ').html('<ul><li>' + result.msg + '</li></ul>');
+                        }
                     }
-                }
+                });
             });
         }
     },

@@ -50,8 +50,13 @@ public class UpdatePasswordValidationMidware {
             context.abort();
             return;
         }
+        if (UserRegister2ValidationMidware.invalidUserPassword(oldPwd)) {
+            context.renderJSON(new JSONObject().put(Keys.MSG, langPropsService.get("invalidPasswordLabel")));
+            context.abort();
+            return;
+        }
 
-        final String pwd = requestJSONObject.optString(User.USER_PASSWORD);
+        final String pwd = requestJSONObject.optString(User.USER_NEW_PASSWORD);
         if (UserRegister2ValidationMidware.invalidUserPassword(pwd)) {
             context.renderJSON(new JSONObject().put(Keys.MSG, langPropsService.get("invalidPasswordLabel")));
             context.abort();

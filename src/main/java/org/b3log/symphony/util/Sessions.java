@@ -40,6 +40,8 @@ import org.b3log.symphony.repository.UserRepository;
 import org.b3log.symphony.service.UserMgmtService;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Set;
 
 /**
@@ -69,6 +71,11 @@ public final class Sessions {
      * Cookie value separator.
      */
     public static final String COOKIE_ITEM_SEPARATOR = ":";
+
+    /**
+     * Session token cache suffix.
+     */
+    private static final String TOKEN_SUFFIX = "_token";
 
     /**
      * Cookie expiry: 7 days.
@@ -323,9 +330,12 @@ public final class Sessions {
             final JSONObject cookieJSONObject = new JSONObject();
             cookieJSONObject.put(Keys.OBJECT_ID, user.optString(Keys.OBJECT_ID));
 
-            final String random = RandomStringUtils.randomAlphanumeric(16);
-            cookieJSONObject.put(Keys.TOKEN, user.optString(User.USER_PASSWORD) + COOKIE_ITEM_SEPARATOR + random);
+            final String random = RandomStringUtils.randomAlphanumeric(64);
+            cookieJSONObject.put(Keys.TOKEN, random);
             cookieJSONObject.put(Common.REMEMBER_LOGIN, rememberLogin);
+            final JSONObject token = new JSONObject();
+            token.put(Common.DATA, hashToken(random));
+            SESSION_CACHE.put(userId + TOKEN_SUFFIX, token);
 
             final String ret = Crypts.encryptByAES(cookieJSONObject.toString(), Symphonys.COOKIE_SECRET);
             final Cookie cookie = new Cookie(COOKIE_NAME, ret);
@@ -361,6 +371,8 @@ public final class Sessions {
         }
 
         SESSION_CACHE.remove(userId);
+        SESSION_CACHE.remove(userId + Common.CSRF_TOKEN);
+        SESSION_CACHE.remove(userId + TOKEN_SUFFIX);
 
         final BeanManager beanManager = BeanManager.getInstance();
         final UserMgmtService userMgmtService = beanManager.getReference(UserMgmtService.class);
@@ -393,18 +405,14 @@ public final class Sessions {
                     return null;
                 }
 
-                JSONObject ret = SESSION_CACHE.get(userId);
-                if (null == ret) {
-                    ret = tryLogInWithCookie(cookieJSONObject, request);
-                }
-                if (null == ret) {
+                final JSONObject token = SESSION_CACHE.get(userId + TOKEN_SUFFIX);
+                final String cookieToken = cookieJSONObject.optString(Keys.TOKEN);
+                if (null == token || StringUtils.isBlank(cookieToken) || !constantTimeEquals(token.optString(Common.DATA), hashToken(cookieToken))) {
                     return null;
                 }
 
-                final String token = cookieJSONObject.optString(Keys.TOKEN);
-                final String password = StringUtils.substringBeforeLast(token, COOKIE_ITEM_SEPARATOR);
-                final String userPassword = ret.optString(User.USER_PASSWORD);
-                if (!userPassword.equals(password)) {
+                final JSONObject ret = SESSION_CACHE.get(userId);
+                if (null == ret) {
                     return null;
                 }
 
@@ -423,52 +431,6 @@ public final class Sessions {
                 }
 
                 return JSONs.clone(ret);
-            }
-        } catch (final Exception e) {
-            LOGGER.log(Level.WARN, "Parses cookie failed, clears cookie");
-        }
-
-        return null;
-    }
-
-    /**
-     * Tries to login with cookie.
-     *
-     * @param cookieJSONObject the specified cookie json object
-     * @param request          the specified request
-     * @return returns user if logged in, returns {@code null} otherwise
-     */
-    private static JSONObject tryLogInWithCookie(final JSONObject cookieJSONObject,
-                                                 final Request request) {
-        final BeanManager beanManager = BeanManager.getInstance();
-        final UserRepository userRepository = beanManager.getReference(UserRepository.class);
-        final UserMgmtService userMgmtService = beanManager.getReference(UserMgmtService.class);
-
-        try {
-            final String userId = cookieJSONObject.optString(Keys.OBJECT_ID);
-            if (StringUtils.isBlank(userId)) {
-                return null;
-            }
-
-            final JSONObject ret = userRepository.get(userId);
-            if (null == ret) {
-                return null;
-            }
-
-            final String ip = Requests.getRemoteAddr(request);
-            if (StringUtils.isNotBlank(ip)) {
-                ret.put(UserExt.USER_LATEST_LOGIN_IP, ip);
-            }
-
-            final String userPassword = ret.optString(User.USER_PASSWORD);
-            final String token = cookieJSONObject.optString(Keys.TOKEN);
-            final String password = StringUtils.substringBeforeLast(token, COOKIE_ITEM_SEPARATOR);
-            if (userPassword.equals(password)) {
-                userMgmtService.updateOnlineStatus(userId, ip, true, true);
-
-                SESSION_CACHE.put(userId, ret);
-
-                return ret;
             }
         } catch (final Exception e) {
             LOGGER.log(Level.WARN, "Parses cookie failed, clears cookie");
@@ -500,6 +462,24 @@ public final class Sessions {
      */
     public static void put(final String key, final JSONObject value) {
         SESSION_CACHE.put(key, value);
+    }
+
+    private static String hashToken(final String token) throws Exception {
+        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        final byte[] bytes = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+        final StringBuilder ret = new StringBuilder(bytes.length * 2);
+        for (final byte b : bytes) {
+            ret.append(String.format("%02x", b));
+        }
+        return ret.toString();
+    }
+
+    private static boolean constantTimeEquals(final String a, final String b) {
+        if (null == a || null == b) {
+            return false;
+        }
+
+        return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

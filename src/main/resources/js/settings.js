@@ -512,6 +512,39 @@ var Settings = {
       return false
     }
 
+    if (type === 'password') {
+      SymCrypto.encryptPassword(requestJSONObject.userPassword, function (encryptedOldPassword) {
+        SymCrypto.encryptPassword(requestJSONObject.userNewPassword, function (encryptedNewPassword) {
+          requestJSONObject.userPassword = encryptedOldPassword
+          requestJSONObject.userNewPassword = encryptedNewPassword
+          $.ajax({
+            url: Label.servePath + '/settings/' + type,
+            type: 'POST',
+            headers: {'csrfToken': csrfToken},
+            cache: false,
+            data: JSON.stringify(requestJSONObject),
+            beforeSend: function () {
+              $('#' + type.replace(/\//g, '') + 'Tip').removeClass('succ').removeClass('error').html('')
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              Util.alert(errorThrown)
+            },
+            success: function (result, textStatus) {
+              if (0 === result.code) {
+                $('#' + type.replace(/\//g, '') + 'Tip').addClass('succ').removeClass('error').html('<ul><li>' + Label.updateSuccLabel + '</li></ul>').show()
+                setTimeout(function () {
+                  window.location.href = Label.servePath + '/login'
+                }, 1000)
+              } else {
+                $('#' + type.replace(/\//g, '') + 'Tip').addClass('error').removeClass('succ').html('<ul><li>' + result.msg + '</li></ul>').show()
+              }
+            },
+          })
+        })
+      })
+      return false
+    }
+
     $.ajax({
       url: Label.servePath + '/settings/' + type,
       type: 'POST',
@@ -665,8 +698,8 @@ var Settings = {
         return false
       }
       var data = {}
-      data.userPassword = calcMD5(pwdVal)
-      data.userNewPassword = calcMD5(newPwdVal)
+      data.userPassword = pwdVal
+      data.userNewPassword = newPwdVal
       return data
     }
     return false

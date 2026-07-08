@@ -51,18 +51,14 @@ public class UserRegister2ValidationMidware {
     private OptionQueryService optionQueryService;
 
     /**
-     * Max password length.
-     *
-     * <p>
-     * MD5 32
-     * </p>
+     * Max encrypted password length.
      */
-    private static final int MAX_PWD_LENGTH = 32;
+    private static final int MAX_ENCRYPTED_PWD_LENGTH = 1024;
 
     /**
-     * Min password length.
+     * Min encrypted password length.
      */
-    private static final int MIN_PWD_LENGTH = 1;
+    private static final int MIN_ENCRYPTED_PWD_LENGTH = 1;
 
     public void handle(final RequestContext context) {
         final JSONObject requestJSONObject = context.requestJSON();
@@ -94,13 +90,13 @@ public class UserRegister2ValidationMidware {
     }
 
     /**
-     * Checks password, length [1, 16].
+     * Checks encrypted password length.
      *
-     * @param password the specific password
+     * @param password the specific encrypted password
      * @return {@code true} if it is invalid, returns {@code false} otherwise
      */
     public static boolean invalidUserPassword(final String password) {
-        return password.length() < MIN_PWD_LENGTH || password.length() > MAX_PWD_LENGTH;
+        return password.length() < MIN_ENCRYPTED_PWD_LENGTH || password.length() > MAX_ENCRYPTED_PWD_LENGTH;
     }
 
 }

@@ -46,6 +46,8 @@ import org.b3log.symphony.processor.middleware.validate.UserForgetPwdValidationM
 import org.b3log.symphony.processor.middleware.validate.UserRegister2ValidationMidware;
 import org.b3log.symphony.processor.middleware.validate.UserRegisterValidationMidware;
 import org.b3log.symphony.service.*;
+import org.b3log.symphony.util.Passwords;
+import org.b3log.symphony.util.RsaCrypts;
 import org.b3log.symphony.util.Sessions;
 import org.b3log.symphony.util.StatusCodes;
 import org.json.JSONObject;
@@ -176,6 +178,7 @@ public class LoginProcessor {
         Dispatcher.post("/guide/next", loginProcessor::nextGuideStep, loginCheck::handle);
         Dispatcher.get("/guide", loginProcessor::showGuide, loginCheck::handle, csrfMidware::fill);
         Dispatcher.get("/login", loginProcessor::showLogin);
+        Dispatcher.get("/crypto/rsa/public-key", loginProcessor::rsaPublicKey);
         Dispatcher.get("/forget-pwd", loginProcessor::showForgetPwd);
         Dispatcher.post("/forget-pwd", loginProcessor::forgetPwd, userForgetPwdValidationMidware::handle);
         Dispatcher.get("/reset-pwd", loginProcessor::showResetPwd);
@@ -372,7 +375,7 @@ public class LoginProcessor {
 
         final Response response = context.getResponse();
         final JSONObject requestJSONObject = context.requestJSON();
-        final String password = requestJSONObject.optString(User.USER_PASSWORD); // Hashed
+        final String encryptedPassword = requestJSONObject.optString(User.USER_PASSWORD);
         final String userId = requestJSONObject.optString(UserExt.USER_T_ID);
         final String code = requestJSONObject.optString(Keys.CODE);
         final JSONObject verifycode = verifycodeQueryService.getVerifycode(code);
@@ -390,13 +393,19 @@ public class LoginProcessor {
                 return;
             }
 
-            user.put(User.USER_PASSWORD, password);
+            final String password = RsaCrypts.decryptPassword(encryptedPassword);
+            if (Passwords.invalidPlainPassword(password)) {
+                context.renderMsg(langPropsService.get("invalidPasswordLabel"));
+                return;
+            }
+
+            user.put(User.USER_PASSWORD, Passwords.hash(password));
             userMgmtService.updatePassword(user);
             verifycodeMgmtService.removeByCode(code);
             context.renderJSON(StatusCodes.SUCC);
             LOGGER.info("User [email=" + user.optString(User.USER_EMAIL) + "] reseted password");
             Sessions.login(response, userId, true);
-        } catch (final ServiceException e) {
+        } catch (final Exception e) {
             final String msg = langPropsService.get("resetPwdLabel") + " - " + e.getMessage();
             LOGGER.log(Level.ERROR, msg + "[name={}, email={}]", name, email);
             context.renderMsg(msg);
@@ -538,7 +547,7 @@ public class LoginProcessor {
         final Response response = context.getResponse();
         final JSONObject requestJSONObject = context.getRequest().getJSON();
 
-        final String password = requestJSONObject.optString(User.USER_PASSWORD); // Hashed
+        final String encryptedPassword = requestJSONObject.optString(User.USER_PASSWORD);
         final int appRole = requestJSONObject.optInt(UserExt.USER_APP_ROLE);
         final String referral = requestJSONObject.optString(Common.REFERRAL);
         final String userId = requestJSONObject.optString(UserExt.USER_T_ID);
@@ -555,8 +564,14 @@ public class LoginProcessor {
             name = user.optString(User.USER_NAME);
             email = user.optString(User.USER_EMAIL);
 
+            final String password = RsaCrypts.decryptPassword(encryptedPassword);
+            if (Passwords.invalidPlainPassword(password)) {
+                context.renderMsg(langPropsService.get("invalidPasswordLabel"));
+                return;
+            }
+
             user.put(UserExt.USER_APP_ROLE, appRole);
-            user.put(User.USER_PASSWORD, password);
+            user.put(User.USER_PASSWORD, Passwords.hash(password));
             user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
 
             userMgmtService.addUser(user);
@@ -610,11 +625,20 @@ public class LoginProcessor {
             context.renderJSON(StatusCodes.SUCC);
 
             LOGGER.log(Level.INFO, "Registered a user [name={}, email={}]", name, email);
-        } catch (final ServiceException e) {
+        } catch (final Exception e) {
             final String msg = langPropsService.get("registerFailLabel") + " - " + e.getMessage();
             LOGGER.log(Level.ERROR, msg + " [name={}, email={}]", name, email);
             context.renderMsg(msg);
         }
+    }
+
+    /**
+     * Gets RSA public key.
+     *
+     * @param context the specified context
+     */
+    public void rsaPublicKey(final RequestContext context) {
+        context.renderJSON(StatusCodes.SUCC).renderJSONValue("publicKey", RsaCrypts.publicKeyPem());
     }
 
     /**
@@ -675,8 +699,21 @@ public class LoginProcessor {
                 }
             }
 
+            final String plainPassword;
+            try {
+                plainPassword = RsaCrypts.decryptPassword(requestJSONObject.optString(User.USER_PASSWORD));
+            } catch (final IllegalArgumentException e) {
+                if (wrongCount > 2) {
+                    context.renderJSONValue(Common.NEED_CAPTCHA, userId);
+                }
+                wrong.put(Common.WRON_COUNT, wrongCount + 1);
+                WRONG_PWD_TRIES.put(userId, wrong);
+                context.renderMsg(langPropsService.get("wrongPwdLabel"));
+                return;
+            }
+
             final String userPassword = user.optString(User.USER_PASSWORD);
-            if (userPassword.equals(requestJSONObject.optString(User.USER_PASSWORD))) {
+            if (Passwords.verify(plainPassword, userPassword)) {
                 final String token = Sessions.login(response, userId, requestJSONObject.optBoolean(Common.REMEMBER_LOGIN));
 
                 final String ip = Requests.getRemoteAddr(request);
