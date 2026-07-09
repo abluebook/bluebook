@@ -75,7 +75,7 @@
         <span class="ft-gray">${pointLabel}</span>
         <a href="${servePath}/member/${user.userName}/points" class="tooltipped tooltipped-n" aria-label="${user.userPoint?c}">
                 <#if 0 == user.userAppRole>
-                0x${user.userPointHex}
+                ${user.userPoint?c}
                 <#else>
                 <div class="painter-point" style="background-color: #${user.userPointCC}"></div>
                 </#if>
