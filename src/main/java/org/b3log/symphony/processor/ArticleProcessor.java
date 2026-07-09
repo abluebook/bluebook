@@ -371,7 +371,7 @@ public class ArticleProcessor {
      */
     private BufferedImage genArticleTitleImage(final JSONObject article) {
         final int width = 720;
-        final int height = 540;
+        final int height = 518;
         final BufferedImage ret = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         final Graphics2D g = ret.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -391,7 +391,7 @@ public class ArticleProcessor {
         g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 42));
         g.fillOval(490, -34, 240, 240);
         g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 26));
-        g.fillOval(-56, 312, 300, 300);
+        g.fillOval(-56, 290, 300, 300);
         g.setColor(accent);
         g.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.drawLine(110, 138, 202, 138);
@@ -399,15 +399,15 @@ public class ArticleProcessor {
         g.setFont(getArticleImageFont(Font.BOLD, 46));
         g.setColor(Color.WHITE);
         final List<String> lines = wrapArticleImageTitle(title);
-        int y = 238;
+        int y = 226;
         for (final String line : lines) {
             g.drawString(line, 110, y);
-            y += 64;
+            y += 58;
         }
 
         g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 140));
         g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.drawLine(110, 430, 370, 430);
+        g.drawLine(110, 400, 370, 400);
         g.dispose();
 
         return ret;
@@ -453,7 +453,7 @@ public class ArticleProcessor {
         final List<String> ret = new ArrayList<>();
         final StringBuilder line = new StringBuilder();
         int width = 0;
-        final int maxWidth = 18;
+        final int maxWidth = 20;
         final String cleanTitle = StringUtils.abbreviate(StringUtils.trimToEmpty(title), 64);
         for (int offset = 0; offset < cleanTitle.length(); ) {
             final int codePoint = cleanTitle.codePointAt(offset);
