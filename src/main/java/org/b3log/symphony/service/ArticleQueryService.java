@@ -882,9 +882,6 @@ public class ArticleQueryService {
 
     /**
      * Gets an article with {@link #organizeArticle(JSONObject)} by the specified id.
-     * <p>
-     * Saves thumbnail if it updated.
-     * </p>
      *
      * @param articleId the specified id
      * @return article, return {@code null} if not found
@@ -897,22 +894,7 @@ public class ArticleQueryService {
                 return null;
             }
 
-            final JSONObject articleDO = JSONs.clone(ret);
-
             organizeArticle(ret);
-
-            final String generatedThumb = ret.optString(Article.ARTICLE_T_THUMBNAIL_URL);
-            final String articleImg1 = ret.optString(Article.ARTICLE_IMG1_URL);
-            if (StringUtils.isNotBlank(generatedThumb) && !StringUtils.equals(generatedThumb, articleImg1)) {
-                try {
-                    final Transaction transaction = articleRepository.beginTransaction();
-                    articleDO.put(Article.ARTICLE_IMG1_URL, generatedThumb);
-                    articleRepository.update(articleId, articleDO, Article.ARTICLE_IMG1_URL);
-                    transaction.commit();
-                } catch (final Exception e) {
-                    LOGGER.log(Level.ERROR, "Saves article img1 URL failed", e);
-                }
-            }
 
             return ret;
         } catch (final RepositoryException e) {
@@ -1500,10 +1482,10 @@ public class ArticleQueryService {
     }
 
     /**
-     * Gets the first image URL of the specified article.
+     * Gets the article thumbnail URL.
      *
      * @param article the specified article
-     * @return the first image URL, returns {@code ""} if not found
+     * @return the thumbnail URL
      */
     private String getArticleThumbnail(final JSONObject article) {
         final int articleType = article.optInt(Article.ARTICLE_TYPE);
@@ -1511,6 +1493,26 @@ public class ArticleQueryService {
             return "";
         }
 
+        final String articleImg1URL = StringUtils.trimToEmpty(article.optString(Article.ARTICLE_IMG1_URL));
+        if (isValidArticleCoverURL(articleImg1URL)) {
+            return articleImg1URL;
+        }
+
+        final String contentThumbnailURL = getArticleContentThumbnail(article);
+        if (StringUtils.isNotBlank(contentThumbnailURL)) {
+            return contentThumbnailURL;
+        }
+
+        return Latkes.getServePath() + "/article/" + article.optString(Keys.OBJECT_ID) + "/image";
+    }
+
+    /**
+     * Gets the first image URL of the specified article content.
+     *
+     * @param article the specified article
+     * @return the first image URL, returns {@code ""} if not found
+     */
+    private String getArticleContentThumbnail(final JSONObject article) {
         final String content = article.optString(Article.ARTICLE_CONTENT);
         if (StringUtils.isBlank(content)) {
             return "";
@@ -1545,17 +1547,40 @@ public class ArticleQueryService {
             } else {
                 ret = "";
             }
-        } else {
-            if (!StringUtils.startsWith(ret, Latkes.getServePath())) {
-                ret = "";
-            }
-        }
-
-        if (StringUtils.isBlank(ret)) {
+        } else if (!StringUtils.startsWith(ret, Latkes.getServePath())) {
             ret = "";
         }
 
-        return ret;
+        return StringUtils.trimToEmpty(ret);
+    }
+
+    /**
+     * Checks whether the specified article cover URL is valid.
+     *
+     * @param coverURL the specified cover URL
+     * @return {@code true} if it is valid, returns {@code false} otherwise
+     */
+    private boolean isValidArticleCoverURL(final String coverURL) {
+        if (StringUtils.isBlank(coverURL) || StringUtils.length(coverURL) > 1024
+                || StringUtils.containsAny(StringUtils.lowerCase(coverURL), "javascript:", "data:")) {
+            return false;
+        }
+
+        final String ret = StringUtils.substringBefore(coverURL, "?");
+        final String lower = StringUtils.lowerCase(ret);
+        if (!StringUtils.endsWithAny(lower, ".jpg", ".jpeg", ".png", ".gif", ".webp")) {
+            return false;
+        }
+
+        if (StringUtils.startsWith(ret, Latkes.getServePath() + "/upload/")) {
+            return true;
+        }
+
+        if (Symphonys.QN_ENABLED) {
+            return StringUtils.startsWith(ret, StringUtils.appendIfMissing(Symphonys.UPLOAD_QINIU_DOMAIN, "/"));
+        }
+
+        return false;
     }
 
     /**

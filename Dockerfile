@@ -10,7 +10,8 @@ LABEL maintainer="starsers <yujieweb@foxmail.com>"
 
 WORKDIR /opt/bluebook/
 COPY --from=mvn_build /opt/bluebook/ /opt/bluebook/
-RUN apk add --no-cache ca-certificates tzdata ttf-dejavu
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+    && apk add --no-cache ca-certificates tzdata ttf-dejavu font-noto-cjk
 
 ENV TZ=Asia/Shanghai
 EXPOSE 8080

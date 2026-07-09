@@ -1598,7 +1598,8 @@ label.cmt-anonymous {
     font-size: 14px;
     line-height: 1.6;
 
-    & > svg {
+    & > svg,
+    & > img {
       margin: 0 auto;
       height: 50px;
       width: 50px;

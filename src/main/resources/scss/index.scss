@@ -756,7 +756,8 @@ label.cmt-anonymous {
     width: 250px;
     margin: 100px auto;
 
-    & > svg {
+    & > svg,
+    & > img {
       margin: 0 auto;
       display: block;
       height: 100px;

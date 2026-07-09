@@ -33,7 +33,7 @@
             <div class="wrapper verify">
                 <div class="verify-wrap">
                     <div class="form">
-                        <svg><use xlink:href="#logo"></use></svg>
+                        <img src="${staticServePath}/images/bluebook-logo300.png" alt="${symphonyLabel}" />
 
                         <div class="input-wrap">
                             <svg><use xlink:href="#userrole"></use></svg>

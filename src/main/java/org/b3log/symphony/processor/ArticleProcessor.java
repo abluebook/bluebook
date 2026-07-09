@@ -17,7 +17,6 @@
  */
 package org.b3log.symphony.processor;
 
-import jodd.util.Base64;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -28,7 +27,9 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.http.Dispatcher;
 import org.b3log.latke.http.Request;
 import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.Response;
 import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.renderer.PngRenderer;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.ioc.Singleton;
@@ -55,8 +56,7 @@ import org.json.JSONObject;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.*;
 
@@ -209,7 +209,7 @@ public class ArticleProcessor {
         final ArticleProcessor articleProcessor = beanManager.getReference(ArticleProcessor.class);
         Dispatcher.post("/article/{id}/remove", articleProcessor::removeArticle, loginCheck::handle, permissionMidware::check);
         Dispatcher.post("/article/check-title", articleProcessor::checkArticleTitle, loginCheck::handle);
-        Dispatcher.get("/article/{articleId}/image", articleProcessor::getArticleImage, loginCheck::handle);
+        Dispatcher.get("/article/{articleId}/image", articleProcessor::getArticleImage);
         Dispatcher.get("/article/{id}/revisions", articleProcessor::getArticleRevisions, loginCheck::handle, permissionMidware::check);
         Dispatcher.get("/pre-post", articleProcessor::showPreAddArticle, loginCheck::handle, csrfMidware::fill);
         Dispatcher.get("/post", articleProcessor::showAddArticle, loginCheck::handle, csrfMidware::fill);
@@ -343,64 +343,142 @@ public class ArticleProcessor {
     public void getArticleImage(final RequestContext context) {
         final String articleId = context.pathVar("articleId");
         final JSONObject article = articleQueryService.getArticle(articleId);
+        if (null == article) {
+            context.sendError(404);
+            return;
+        }
 
-        final Set<JSONObject> characters = characterQueryService.getWrittenCharacters();
-        final String articleContent = article.optString(Article.ARTICLE_CONTENT);
+        final PngRenderer renderer = new PngRenderer();
+        context.setRenderer(renderer);
 
-        final List<BufferedImage> images = new ArrayList<>();
-        for (int i = 0; i < articleContent.length(); i++) {
-            final String ch = articleContent.substring(i, i + 1);
-            final JSONObject chRecord = org.b3log.symphony.model.Character.getCharacter(ch, characters);
-            if (null == chRecord) {
-                images.add(org.b3log.symphony.model.Character.createImage(ch));
+        final Response response = context.getResponse();
+        response.setHeader("Cache-Control", "public, max-age=31536000");
+
+        final BufferedImage image = genArticleTitleImage(article);
+        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ImageIO.write(image, "png", baos);
+            renderer.setData(baos.toByteArray());
+        } catch (final Exception e) {
+            LOGGER.log(Level.ERROR, "Generates article image failed [articleId=" + articleId + "]", e);
+        }
+    }
+
+    /**
+     * Generates article title image.
+     *
+     * @param article the specified article
+     * @return image
+     */
+    private BufferedImage genArticleTitleImage(final JSONObject article) {
+        final int width = 720;
+        final int height = 540;
+        final BufferedImage ret = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        final Graphics2D g = ret.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        final String[][] palettes = {
+                {"#1f2937", "#fbbf24"}, {"#312e81", "#a5b4fc"}, {"#064e3b", "#6ee7b7"},
+                {"#7f1d1d", "#fca5a5"}, {"#164e63", "#67e8f9"}, {"#3b0764", "#d8b4fe"}
+        };
+        final String title = StringUtils.defaultIfBlank(article.optString(Article.ARTICLE_TITLE), langPropsService.get("articleLabel"));
+        final int paletteIndex = Math.abs(StringUtils.defaultIfBlank(article.optString(Keys.OBJECT_ID), title).hashCode()) % palettes.length;
+        final Color bg = Color.decode(palettes[paletteIndex][0]);
+        final Color accent = Color.decode(palettes[paletteIndex][1]);
+
+        g.setColor(bg);
+        g.fillRect(0, 0, width, height);
+        g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 42));
+        g.fillOval(490, -34, 240, 240);
+        g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 26));
+        g.fillOval(-56, 312, 300, 300);
+        g.setColor(accent);
+        g.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.drawLine(110, 138, 202, 138);
+
+        g.setFont(getArticleImageFont(Font.BOLD, 46));
+        g.setColor(Color.WHITE);
+        final List<String> lines = wrapArticleImageTitle(title);
+        int y = 238;
+        for (final String line : lines) {
+            g.drawString(line, 110, y);
+            y += 64;
+        }
+
+        g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 140));
+        g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.drawLine(110, 430, 370, 430);
+        g.dispose();
+
+        return ret;
+    }
+
+    /**
+     * Gets article image font.
+     *
+     * @param style the specified font style
+     * @param size  the specified font size
+     * @return font
+     */
+    private Font getArticleImageFont(final int style, final int size) {
+        final String[] preferredFonts = {
+                "Microsoft YaHei", "Microsoft YaHei UI", "PingFang SC", "Hiragino Sans GB", "Heiti SC",
+                "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans SC", "WenQuanYi Micro Hei",
+                "SimHei", "SimSun", Font.SANS_SERIF
+        };
+        final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        final Set<String> fontNames = new HashSet<>(Arrays.asList(environment.getAvailableFontFamilyNames(Locale.ENGLISH)));
+        fontNames.addAll(Arrays.asList(environment.getAvailableFontFamilyNames()));
+        for (final String fontName : preferredFonts) {
+            if (!Font.SANS_SERIF.equals(fontName) && !fontNames.contains(fontName)) {
                 continue;
             }
 
-            final String imgData = chRecord.optString(org.b3log.symphony.model.Character.CHARACTER_IMG);
-            final byte[] data = Base64.decode(imgData.getBytes());
-            BufferedImage img;
-            try {
-                img = ImageIO.read(new ByteArrayInputStream(data));
-                final BufferedImage newImage = new BufferedImage(50, 50, img.getType());
-                final Graphics g = newImage.getGraphics();
-                g.setClip(0, 0, 50, 50);
-                g.fillRect(0, 0, 50, 50);
-                g.drawImage(img, 0, 0, 50, 50, null);
-                g.dispose();
-
-                images.add(newImage);
-            } catch (final Exception e) {
-                // ignored
+            final Font font = new Font(fontName, style, size);
+            if (font.canDisplayUpTo("中文测试大家好啊") < 0) {
+                return font;
             }
         }
 
-        final int rowCharacterCount = 30;
-        final int rows = (int) Math.ceil((double) images.size() / (double) rowCharacterCount);
+        return new Font(Font.SANS_SERIF, style, size);
+    }
 
-        final BufferedImage combined = new BufferedImage(30 * 50, rows * 50, Transparency.TRANSLUCENT);
-        int row = 0;
-        for (int i = 0; i < images.size(); i++) {
-            final BufferedImage image = images.get(i);
-
-            final Graphics g = combined.getGraphics();
-            g.drawImage(image, (i % rowCharacterCount) * 50, row * 50, null);
-
-            if (0 == (i + 1) % rowCharacterCount) {
-                row++;
+    /**
+     * Wraps article image title.
+     *
+     * @param title the specified title
+     * @return wrapped lines
+     */
+    private List<String> wrapArticleImageTitle(final String title) {
+        final List<String> ret = new ArrayList<>();
+        final StringBuilder line = new StringBuilder();
+        int width = 0;
+        final int maxWidth = 18;
+        final String cleanTitle = StringUtils.abbreviate(StringUtils.trimToEmpty(title), 64);
+        for (int offset = 0; offset < cleanTitle.length(); ) {
+            final int codePoint = cleanTitle.codePointAt(offset);
+            final String ch = new String(java.lang.Character.toChars(codePoint));
+            final int charWidth = codePoint > 255 ? 2 : 1;
+            if (width + charWidth > maxWidth && line.length() > 0) {
+                ret.add(StringUtils.trim(line.toString()));
+                line.setLength(0);
+                width = 0;
+                if (ret.size() >= 3) {
+                    break;
+                }
             }
+            line.append(ch);
+            width += charWidth;
+            offset += java.lang.Character.charCount(codePoint);
+        }
+        if (ret.size() < 3 && line.length() > 0) {
+            ret.add(StringUtils.trim(line.toString()));
+        }
+        if (ret.isEmpty()) {
+            ret.add(langPropsService.get("articleLabel"));
         }
 
-        try {
-            ImageIO.write(combined, "PNG", new File("./hp.png"));
-        } catch (final Exception e) {
-            // ignored
-        }
-
-        String url = "";
-        final JSONObject ret = new JSONObject();
-        ret.put(Keys.CODE, StatusCodes.SUCC);
-        ret.put(Common.URL, url);
-        context.renderJSON(ret);
+        return ret;
     }
 
     /**
