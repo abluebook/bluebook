@@ -43,9 +43,10 @@
                 <div class="fn__flex">
                     <label>
                         <div>${roleLabel}</div>
-                        <select id="domainNav" name="domainNav">
+                        <select id="userAppRole" name="userAppRole">
                             <option value="0">${programmerLabel}</option>
                             <option value="1">${designerLabel}</option>
+                            <option value="2">${superRoleLabel}</option>
                         </select>
                     </label>
                     <label class="mid"></label>

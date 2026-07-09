@@ -47,7 +47,7 @@
                         </#if>
                         <div>
                             ${symphonyLabel} ${user.userNo?c} ${numMemberLabel},
-                            <#if 0 == user.userAppRole>${hackerLabel}<#else>${painterLabel}</#if>
+                            <#if 0 == user.userAppRole>${hackerLabel}<#elseif 1 == user.userAppRole>${painterLabel}<#else>${superRoleLabel}</#if>
                         </div>
                     </div>
                     <div class="cmts tooltipped tooltipped-w" aria-label="${pointLabel} ${user.userPoint?c}">

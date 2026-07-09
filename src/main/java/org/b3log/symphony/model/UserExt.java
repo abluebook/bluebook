@@ -526,6 +526,11 @@ public final class UserExt {
      */
     public static final int USER_APP_ROLE_C_PAINTER = 1;
 
+    /**
+     * User app role - Super.
+     */
+    public static final int USER_APP_ROLE_C_SUPER = 2;
+
     //// List view mode constants
     /**
      * List view mode - Only title.

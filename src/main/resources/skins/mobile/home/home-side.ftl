@@ -70,7 +70,7 @@
         <div class="user-info">
             <span class="ft-gray">${symphonyLabel}</span>
             ${user.userNo?c}
-            <span class="ft-gray">${numMemberLabel}</span>, <#if 0 == user.userAppRole>${hackerLabel}<#else>${painterLabel}</#if>
+            <span class="ft-gray">${numMemberLabel}</span>, <#if 0 == user.userAppRole>${hackerLabel}<#elseif 1 == user.userAppRole>${painterLabel}<#else>${superRoleLabel}</#if>
         </div>
         <#if "" != user.userTags>
         <div class="user-info">

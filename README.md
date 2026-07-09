@@ -31,14 +31,14 @@
 
 ## 💡 简介
 
-[Symphony](https://b3log.org/bluebook)（[ˈs ɪmf əni]，n.交响乐）是一个现代化的社区平台，因为它：
+[Symphony](https://b3log.org/sym)（[ˈs ɪmf əni]，n.交响乐）是一个现代化的社区平台，因为它：
 
 * 实现了面向内容讨论的论坛
 * 实现了面向知识问答的社区
 * 包含了面向用户分享、交友、游戏的社交网络
 * `100%` 开源
 
-欢迎到 [BlueBook 官方讨论区](https://ld246.com/tag/bluebook)了解更多。同时也欢迎关注 B3log 开源社区微信公众号 `B3log开源`：
+欢迎到 [Sym 官方讨论区](https://ld246.com/tag/sym)了解更多。同时也欢迎关注 B3log 开源社区微信公众号 `B3log开源`：
 
 ![b3logos.jpg](https://b3logfile.com/file/2020/08/b3logos-032af045.jpg)
 
@@ -53,8 +53,8 @@
 
 ## ✨  特性
 
-* [BlueBook 简介幻灯片](https://b3log.org/bluebook/syme-intro.pptx)
-* [BlueBook 功能点脑图](http://naotu.baidu.com/file/cd31354ac9abc047569c73c560a5a913?token=b9750ae13f39ef9a)
+* [Sym 简介幻灯片](https://b3log.org/sym/syme-intro.pptx)
+* [Sym 功能点脑图](http://naotu.baidu.com/file/cd31354ac9abc047569c73c560a5a913?token=b9750ae13f39ef9a)
 
 ```
 内容编辑器
@@ -661,11 +661,11 @@ API
 
 ```
 
-[![BlueBook功能.png](https://b3logfile.com/file/2020/07/BlueBook功能-5f8c0fed.png)](http://naotu.baidu.com/file/cd31354ac9abc047569c73c560a5a913?token=b9750ae13f39ef9a)
+[![Sym功能.png](https://b3logfile.com/file/2020/07/Sym功能-5f8c0fed.png)](http://naotu.baidu.com/file/cd31354ac9abc047569c73c560a5a913?token=b9750ae13f39ef9a)
 
 ## 🎨 界面
 
-以下截图来自 BlueBook 商业版。
+以下截图来自 Sym 商业版。
 
 **首页**
 
@@ -693,17 +693,17 @@ API
 
 ## 🛠️ 安装
 
-请参考 [BlueBook 安装指南](https://ld246.com/article/1486188905847)。
+请参考 [Sym 安装指南](https://ld246.com/article/1486188905847)。
 
 ## 🏘️ 社区
 
-* [讨论区](https://ld246.com/tag/bluebook)
+* [讨论区](https://ld246.com/tag/sym)
 * [报告问题](https://github.com/88250/symphony/issues/new/choose)
 
 ## 📄 授权
 
 * 社区版：使用 AGPLv3 开源，如果你选择使用社区版，则必须完全遵守 AGPLv3 的相关条款；公司使用必须购买商用授权
-* 商业版：提供完整源码以便二开，报价 ¥20000，详情请看[这里](https://b3log.org/bluebook/pricing.html)
+* 商业版：提供完整源码以便二开，报价 ¥20000，详情请看[这里](https://b3log.org/sym/pricing.html)
 * 云服务：提供开箱即用的云端服务，每年 ¥5000（暂时售罄）
 
 **关于商业版和社区版的对比请看[这里](https://ld246.com/article/1500543226433)，企业网站、经营性网站、以营利为目的或实现盈利的网站请购买商业版。**

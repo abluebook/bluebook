@@ -37,7 +37,8 @@
                 <input name="userPassword" type="text" />
 
                 <label><input name="userAppRole" type="radio" value="0" checked="checked" /> ${programmerLabel}&nbsp;&nbsp;</label>
-                <label><input name="userAppRole" type="radio" value="1" /> ${designerLabel}</label>
+                <label><input name="userAppRole" type="radio" value="1" /> ${designerLabel}&nbsp;&nbsp;</label>
+                <label><input name="userAppRole" type="radio" value="2" /> ${superRoleLabel}</label>
 
                 <br/><br/><br/>
                 <button type="submit" class="green fn-right">${submitLabel}</button>

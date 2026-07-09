@@ -251,7 +251,7 @@ public class UserRegisterValidationMidware {
             return;
         }
 
-        if (UserExt.USER_APP_ROLE_C_HACKER != appRole && UserExt.USER_APP_ROLE_C_PAINTER != appRole) {
+        if (UserExt.USER_APP_ROLE_C_HACKER != appRole && UserExt.USER_APP_ROLE_C_PAINTER != appRole && UserExt.USER_APP_ROLE_C_SUPER != appRole) {
             context.renderJSON(new JSONObject().put(Keys.MSG, langPropsService.get("registerFailLabel") + " - " + langPropsService.get("invalidAppRoleLabel")));
             context.abort();
             return;

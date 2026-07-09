@@ -227,6 +227,7 @@
                 <select id="userAppRole" name="userAppRole">
                     <option value="0"<#if 0 == user.userAppRole> selected</#if>>${hackerLabel}</option>
                     <option value="1"<#if 1 == user.userAppRole> selected</#if>>${painterLabel}</option>
+                    <option value="2"<#if 2 == user.userAppRole> selected</#if>>${superRoleLabel}</option>
                 </select>
 
                 <label>${userStatusLabel}</label>
