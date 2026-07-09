@@ -3,6 +3,11 @@ target/
 upload/
 node_modules/
 .env
+.env.*
+!.env.example
+config/
+*.local.properties
+symphony.override.properties
 **/.DS_store
 .idea/
 symphony.iml
