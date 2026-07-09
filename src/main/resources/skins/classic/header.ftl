@@ -20,7 +20,7 @@
 <div class="nav">
     <h1 aria-label="${symphonyLabel}" class="tooltipped tooltipped-s">
         <a href="${servePath}">
-            <svg><use xlink:href="#logo"></use></svg>
+            <img src="${staticServePath}/images/bluebook-logo300.png" alt="${symphonyLabel}">
         </a>
     </h1>
     <div class="nav-tabs">
@@ -58,7 +58,7 @@
     </div>
     <#if esEnabled || algoliaEnabled>
     <form class="responsive-hide fn-left" target="_blank" action="/search">
-        <input class="search" placeholder="Search Sym" type="text" name="key" id="search"
+        <input class="search" placeholder="Search BlueBook" type="text" name="key" id="search"
                value="<#if key??>${key}</#if>">
         <input type="submit" class="fn-none" value=""/>
     </form>

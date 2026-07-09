@@ -22,7 +22,7 @@
         <div class="head-fn fn-left">
             <h1>
                 <a href="${servePath}" aria-label="${symphonyLabel}">
-                    <svg><use xlink:href="#logo"></use></svg>
+                    <img src="${staticServePath}/images/bluebook-logo300.png" alt="${symphonyLabel}">
                 </a>
             </h1>
         </div>

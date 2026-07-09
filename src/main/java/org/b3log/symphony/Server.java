@@ -102,7 +102,7 @@ public final class Server extends BaseServer {
         final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
         final String cmdSyntax = isWindows ? "java -cp \"lib/*;.\" org.b3log.symphony.Server"
                 : "java -cp \"lib/*:.\" org.b3log.symphony.Server";
-        final String header = "\nSym 是一款用 Java 实现的现代化社区（论坛/BBS/社交网络/博客）平台。\n\n";
+        final String header = "\nBlueBook 是一款服务广大散帅的自由论坛。\n\n";
         final String footer = "\n提需求或报告缺陷请到项目网站: https://github.com/88250/symphony\n\n";
         try {
             commandLine = commandLineParser.parse(options, args);
@@ -159,7 +159,7 @@ public final class Server extends BaseServer {
         final String jdbcURL = Latkes.getLocalProperty("jdbc.URL");
         final boolean luteAvailable = Markdowns.LUTE_AVAILABLE;
 
-        LOGGER.log(Level.INFO, "Sym is booting [ver=" + VERSION + ", os=" + Latkes.getOperatingSystemName() +
+        LOGGER.log(Level.INFO, "BlueBook is booting [ver=" + VERSION + ", os=" + Latkes.getOperatingSystemName() +
                 ", isDocker=" + Latkes.isDocker() + ", luteAvailable=" + luteAvailable + ", pid=" + Latkes.currentPID() +
                 ", runtimeDatabase=" + runtimeDatabase + ", runtimeMode=" + Latkes.getRuntimeMode() + ", jdbc.username=" +
                 jdbcUsername + ", jdbc.URL=" + jdbcURL + "]");
@@ -167,7 +167,7 @@ public final class Server extends BaseServer {
         final BeanManager beanManager = BeanManager.getInstance();
 
         final InitMgmtService initMgmtService = beanManager.getReference(InitMgmtService.class);
-        initMgmtService.initSym();
+        initMgmtService.initBlueBook();
 
         // Register event listeners
         final EventManager eventManager = beanManager.getReference(EventManager.class);

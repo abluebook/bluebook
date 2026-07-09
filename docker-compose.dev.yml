@@ -4,10 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-      - upload-data:/root/sym/upload
+      - upload-data:/root/bluebook/upload
       # Hot-reload-ish frontend/template resources for quick UI testing.
       # If FreeMarker/template cache is enabled, run: docker restart symphony
-      - ./src/main/resources/skins:/opt/sym/skins
-      - ./src/main/resources/js:/opt/sym/js
-      - ./src/main/resources/css:/opt/sym/css
-      - ./src/main/resources/scss:/opt/sym/scss
+      - ./src/main/resources/skins:/opt/bluebook/skins
+      - ./src/main/resources/js:/opt/bluebook/js
+      - ./src/main/resources/css:/opt/bluebook/css
+      - ./src/main/resources/scss:/opt/bluebook/scss

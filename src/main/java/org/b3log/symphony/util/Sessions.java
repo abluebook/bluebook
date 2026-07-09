@@ -65,7 +65,7 @@ public final class Sessions {
     /**
      * Cookie name.
      */
-    public static final String COOKIE_NAME = "sym-ce";
+    public static final String COOKIE_NAME = "bluebook-ce";
 
     /**
      * Cookie value separator.

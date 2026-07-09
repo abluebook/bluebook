@@ -128,7 +128,7 @@ public class FileUploadProcessor {
 
             context.setHeader("Cache-Control", "public, max-age=31536000");
             context.setHeader("ETag", etag);
-            context.setHeader("Server", "Sym File Server (v" + Server.VERSION + ")");
+            context.setHeader("Server", "BlueBook File Server (v" + Server.VERSION + ")");
             context.setHeader("Access-Control-Allow-Origin", "*");
             final String ext = StringUtils.substringAfterLast(path, ".");
             final String mimeType = MimeTypes.getMimeType(ext);

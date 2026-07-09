@@ -114,7 +114,6 @@
                         <ul class="module-list">
                             <li><a class="title" href="${servePath}/activity/daily-checkin">${activityDailyCheckinLabel}</a></li>
                             <li><a class="title" href="${servePath}/activity/yesterday-liveness-reward">${activityYesterdayLivenessRewardLabel}</a></li>
-                            <li><a class="title" href="${servePath}/activity/1A0001">${activity1A0001Label}</a></li>
                             <li><a class="title" href="${servePath}/activity/character">${characterLabel}</a></li>
                         </ul>
                     </div>

@@ -215,9 +215,9 @@ public class InitMgmtService {
     private UserQueryService userQueryService;
 
     /**
-     * Initializes Sym if first time setup.
+     * Initializes BlueBook if first time setup.
      */
-    public void initSym() {
+    public void initBlueBook() {
         try {
             final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
             final boolean userTableExist = JdbcRepositories.existTable(tablePrefix + User.USER);
@@ -234,7 +234,7 @@ public class InitMgmtService {
             System.exit(0);
         }
 
-        LOGGER.info("It's your first time setup Sym, initializes Sym....");
+        LOGGER.info("It's your first time setup BlueBook, initializes BlueBook....");
 
         try {
             LOGGER.log(Level.INFO, "Database [{}], creating all tables", Latkes.getRuntimeDatabase());
@@ -665,29 +665,29 @@ public class InitMgmtService {
             tag.put(Tag.TAG_URI, "announcement");
             tagMgmtService.updateTag(tagId, tag);
 
-            tagTitle = "Sym";
+            tagTitle = "BlueBook";
             tagId = tagMgmtService.addTag(adminId, tagTitle);
             tag = tagRepository.get(tagId);
-            tag.put(Tag.TAG_URI, "sym");
-            tag.put(Tag.TAG_ICON_PATH, Latkes.getStaticServePath() + "/images/tags/sym.png");
-            tag.put(Tag.TAG_DESCRIPTION, "[Sym](https://github.com/88250/symphony) 是一款用 Java 实现的现代化社区（论坛/BBS/社交网络/博客）平台，“下一代的社区系统，为未来而构建”。");
+            tag.put(Tag.TAG_URI, "bluebook");
+            tag.put(Tag.TAG_ICON_PATH, Latkes.getStaticServePath() + "/images/tags/bluebook.png");
+            tag.put(Tag.TAG_DESCRIPTION, "[BlueBook](https://github.com/88250/symphony) 是一款用 Java 实现的现代化社区（论坛/BBS/社交网络/博客）平台，“下一代的社区系统，为未来而构建”。");
             tagMgmtService.updateTag(tagId, tag);
 
             LOGGER.log(Level.INFO, "Initialized tag data");
 
             // Hello World!
             final JSONObject article = new JSONObject();
-            article.put(Article.ARTICLE_TITLE, "欢迎来到 Sym 社区 :gift_heart:");
-            article.put(Article.ARTICLE_TAGS, "系统公告,Sym");
-            article.put(Article.ARTICLE_CONTENT, "社区愿景、行为准则、功能等请在此进行描述介绍。");
+            article.put(Article.ARTICLE_TITLE, "欢迎来到散帅的社区 :gift_heart:");
+            article.put(Article.ARTICLE_TAGS, "系统公告,BlueBook");
+            article.put(Article.ARTICLE_CONTENT, "这里是蓝书，散帅们的集中营。大家在这里相互信任，以平等 • 自由 • 奔放的价值观进行分享交流。最后请大家共同爱护这个自由的交流环境，哦耶。");
             article.put(Article.ARTICLE_EDITOR_TYPE, 0);
             article.put(Article.ARTICLE_AUTHOR_ID, admin.optString(Keys.OBJECT_ID));
 
             articleMgmtService.addArticle(article);
 
-            LOGGER.info("Initialized Sym, have fun!");
+            LOGGER.info("Initialized BlueBook, have fun!");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Initializes Sym failed", e);
+            LOGGER.log(Level.ERROR, "Initializes BlueBook failed", e);
 
             System.exit(0);
         }

@@ -1,9 +1,9 @@
 FROM eclipse-temurin:18-jre-alpine
 LABEL maintainer="starsers <yujieweb@foxmail.com>"
 
-WORKDIR /opt/sym/
-COPY target/symphony-bin/ /opt/sym/
-COPY src/main/resources/docker/* /opt/sym/
+WORKDIR /opt/bluebook/
+COPY target/symphony-bin/ /opt/bluebook/
+COPY src/main/resources/docker/* /opt/bluebook/
 RUN apk add --no-cache ca-certificates tzdata ttf-dejavu
 
 ENV TZ=Asia/Shanghai

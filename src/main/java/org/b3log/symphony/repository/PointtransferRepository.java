@@ -48,7 +48,7 @@ public class PointtransferRepository extends AbstractRepository {
      *
      * @param userId the given user id
      * @return average point, if the point small than {@code 1}, returns {@code pointActivityEatingSnake} which
-     * configured in sym.properties
+     * configured in bluebook.properties
      */
     public int getActivityEatingSnakeAvg(final String userId) {
         int ret = Pointtransfer.TRANSFER_SUM_C_ACTIVITY_EATINGSNAKE;

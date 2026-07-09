@@ -64,12 +64,12 @@ public final class Mails {
     /**
      * Template name - verifycode.
      */
-    public static final String TEMPLATE_NAME_VERIFYCODE = "sym_verifycode";
+    public static final String TEMPLATE_NAME_VERIFYCODE = "bluebook_verifycode";
 
     /**
      * Template name - weekly.
      */
-    public static final String TEMPLATE_NAME_WEEKLY = "sym_weekly";
+    public static final String TEMPLATE_NAME_WEEKLY = "bluebook_weekly";
 
     /**
      * Template configuration.

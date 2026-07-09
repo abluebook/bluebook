@@ -42,10 +42,10 @@
                         <span class="users" data-index="2">
                         </span>
                     </div>
-                    <div class="index-tabs-panels list article-list">
+                    <div class="index-tabs-panels list article-list waterfall-list">
                         <ul>
                             <#list recentArticles as article>
-                                <#include "common/list-item.ftl">
+                                <#include "common/waterfall-card.ftl">
                             </#list>
                             <#if recentArticles?size == 0>
                             <li class="ft-center">

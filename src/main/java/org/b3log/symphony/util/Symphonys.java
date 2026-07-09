@@ -69,7 +69,7 @@ public final class Symphonys {
     /**
      * User-Agent.
      */
-    public static final String USER_AGENT_BOT = "Sym/" + Server.VERSION + "; +https://github.com/88250/symphony";
+    public static final String USER_AGENT_BOT = "BlueBook/" + Server.VERSION + "; +https://github.com/88250/symphony";
 
     /**
      * Reserved tags.
@@ -104,9 +104,9 @@ public final class Symphonys {
     static {
         try {
             InputStream resourceAsStream;
-            final String symPropsEnv = System.getenv("SYM_PROPS");
+            final String symPropsEnv = System.getenv("BLUEBOOK_PROPS");
             if (StringUtils.isNotBlank(symPropsEnv)) {
-                LOGGER.trace("Loading symphony.properties from env var [$SYM_PROPS=" + symPropsEnv + "]");
+                LOGGER.trace("Loading symphony.properties from env var [$BLUEBOOK_PROPS=" + symPropsEnv + "]");
                 resourceAsStream = new FileInputStream(symPropsEnv);
             } else {
                 LOGGER.trace("Loading symphony.properties from classpath [/symphony.properties]");
@@ -889,7 +889,7 @@ public final class Symphonys {
             // ignore
         }
 
-        // 向 Rhy 发送统计数据，仅发送站点名称、URL。用于 Sym 使用统计，如果不想发送请移除该代码
+        // 向 Rhy 发送统计数据，仅发送站点名称、URL。用于 BlueBook 使用统计，如果不想发送请移除该代码
         new Timer(true).schedule(new TimerTask() {
             @Override
             public void run() {
@@ -911,7 +911,7 @@ public final class Symphonys {
 
                     final LangPropsService langPropsService = beanManager.getReference(LangPropsService.class);
 
-                    httpConn = (HttpURLConnection) new URL("https://rhythm.b3log.org/sym").openConnection();
+                    httpConn = (HttpURLConnection) new URL("https://rhythm.b3log.org/bluebook").openConnection();
                     httpConn.setConnectTimeout(10000);
                     httpConn.setReadTimeout(10000);
                     httpConn.setDoOutput(true);
@@ -921,11 +921,11 @@ public final class Symphonys {
                     httpConn.connect();
 
                     try (final OutputStream outputStream = httpConn.getOutputStream()) {
-                        final JSONObject sym = new JSONObject();
-                        sym.put("symURL", symURL);
-                        sym.put("symTitle", langPropsService.get("symphonyLabel", Latkes.getLocale()));
+                        final JSONObject bluebook = new JSONObject();
+                        bluebook.put("symURL", symURL);
+                        bluebook.put("symTitle", langPropsService.get("symphonyLabel", Latkes.getLocale()));
 
-                        IOUtils.write(sym.toString(), outputStream, "UTF-8");
+                        IOUtils.write(bluebook.toString(), outputStream, "UTF-8");
                         outputStream.flush();
                     }
 

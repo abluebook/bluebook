@@ -39,6 +39,10 @@
     .user-nav > span:first-child {
         display: none;
     }
+
+    .index .waterfall-list > ul {
+        column-count: 2;
+    }
 }
 
 @media (max-width: 768px) {
@@ -94,6 +98,10 @@
         width: 100%;
         margin-left: 0;
         margin-bottom: 20px;
+    }
+
+    html .index .waterfall-list > ul {
+        column-count: 1;
     }
 
     /* article */

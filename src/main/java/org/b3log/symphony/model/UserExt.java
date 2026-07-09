@@ -401,7 +401,7 @@ public final class UserExt {
     /**
      * Builtin email suffix.
      */
-    public static final String USER_BUILTIN_EMAIL_SUFFIX = "@sym.b3log.org";
+    public static final String USER_BUILTIN_EMAIL_SUFFIX = "@bluebook.b3log.org";
 
     //// Community Bot constants
     /**

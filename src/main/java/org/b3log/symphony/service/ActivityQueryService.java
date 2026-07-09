@@ -82,7 +82,7 @@ public class ActivityQueryService {
      *
      * @param userId the given user id
      * @return average point, if the point small than {@code 1}, returns {@code pointActivityEatingSnake} which
-     * configured in sym.properties
+     * configured in bluebook.properties
      */
     public int getEatingSnakeAvgPoint(final String userId) {
         return pointtransferRepository.getActivityEatingSnakeAvg(userId);

@@ -1,4 +1,6 @@
-target/
+target/*
+!target/symphony-bin/
+!target/symphony-bin/**
 .git/
 .idea/
 .vscode/

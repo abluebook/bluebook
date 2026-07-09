@@ -1,5 +1,5 @@
 <p align = "center">
-<img alt="Sym" src="https://b3log.org/images/brand/sym-128.png">
+<img alt="BlueBook" src="https://b3log.org/images/brand/bluebook-128.png">
 <br><br>
 The next generation of the community system, built for the future
 <br><br>

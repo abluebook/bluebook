@@ -146,7 +146,7 @@ public class BeforeRequestHandler implements Handler {
                     && !StringUtils.containsIgnoreCase(userAgentStr, "MetaURI")
                     && !StringUtils.containsIgnoreCase(userAgentStr, "Feed")
                     && !StringUtils.containsIgnoreCase(userAgentStr, "okhttp")
-                    && !StringUtils.containsIgnoreCase(userAgentStr, "Sym")) {
+                    && !StringUtils.containsIgnoreCase(userAgentStr, "BlueBook")) {
                 LOGGER.log(Level.WARN, "Unknown client [UA=" + userAgentStr + ", remoteAddr="
                         + Requests.getRemoteAddr(context.getRequest()) + ", URI=" + context.requestURI() + "]");
             }

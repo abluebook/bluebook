@@ -23,6 +23,7 @@ import org.b3log.latke.Latkes;
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -45,24 +46,25 @@ public final class RsaCrypts {
 
     static {
         try {
-            final String privatePem = loadPem("RSA_PRIVATE_KEY", "RSA_PRIVATE_KEY_PATH");
-            final String publicPem = loadPem("RSA_PUBLIC_KEY", "RSA_PUBLIC_KEY_PATH");
-            if (StringUtils.isNotBlank(privatePem) && StringUtils.isNotBlank(publicPem)) {
-                PRIVATE_KEY = readPrivateKey(privatePem);
-                PUBLIC_KEY = readPublicKey(publicPem);
-                PUBLIC_KEY_PEM = toPublicPem(PUBLIC_KEY.getEncoded());
-            } else {
-                if (productionRuntime()) {
+            String privatePem = loadPem("RSA_PRIVATE_KEY", "RSA_PRIVATE_KEY_PATH");
+            String publicPem = loadPem("RSA_PUBLIC_KEY", "RSA_PUBLIC_KEY_PATH");
+            if (StringUtils.isBlank(privatePem) || StringUtils.isBlank(publicPem)) {
+                final KeyPair keyPair = generateKeyPair();
+                final String generatedPrivatePem = toPrivatePem(keyPair.getPrivate().getEncoded());
+                final String generatedPublicPem = toPublicPem(keyPair.getPublic().getEncoded());
+                if (configuredPath("RSA_PRIVATE_KEY_PATH") && configuredPath("RSA_PUBLIC_KEY_PATH")) {
+                    writePem("RSA_PRIVATE_KEY_PATH", generatedPrivatePem);
+                    writePem("RSA_PUBLIC_KEY_PATH", generatedPublicPem);
+                } else if (productionRuntime()) {
                     throw new IllegalStateException("RSA_PRIVATE_KEY_PATH/RSA_PUBLIC_KEY_PATH or RSA_PRIVATE_KEY/RSA_PUBLIC_KEY must be configured in production");
                 }
-
-                final KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-                generator.initialize(2048);
-                final KeyPair keyPair = generator.generateKeyPair();
-                PRIVATE_KEY = keyPair.getPrivate();
-                PUBLIC_KEY = keyPair.getPublic();
-                PUBLIC_KEY_PEM = toPublicPem(PUBLIC_KEY.getEncoded());
+                privatePem = generatedPrivatePem;
+                publicPem = generatedPublicPem;
             }
+
+            PRIVATE_KEY = readPrivateKey(privatePem);
+            PUBLIC_KEY = readPublicKey(publicPem);
+            PUBLIC_KEY_PEM = toPublicPem(PUBLIC_KEY.getEncoded());
         } catch (final Exception e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -95,12 +97,31 @@ public final class RsaCrypts {
         return Base64.getEncoder().encodeToString(cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8)));
     }
 
+    private static KeyPair generateKeyPair() throws Exception {
+        final KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        return generator.generateKeyPair();
+    }
+
     private static boolean productionRuntime() {
         try {
             return Latkes.RuntimeMode.PRODUCTION == Latkes.getRuntimeMode();
         } catch (final RuntimeException e) {
             return false;
         }
+    }
+
+    private static boolean configuredPath(final String pathName) {
+        return StringUtils.isNotBlank(System.getenv(pathName));
+    }
+
+    private static void writePem(final String pathName, final String pem) throws Exception {
+        final Path path = Paths.get(System.getenv(pathName));
+        final Path parent = path.getParent();
+        if (null != parent) {
+            Files.createDirectories(parent);
+        }
+        Files.writeString(path, pem, StandardCharsets.UTF_8);
     }
 
     private static String loadPem(final String valueName, final String pathName) throws Exception {
@@ -114,7 +135,12 @@ public final class RsaCrypts {
             return null;
         }
 
-        return Files.readString(Paths.get(path), StandardCharsets.UTF_8);
+        final Path pemPath = Paths.get(path);
+        if (!Files.exists(pemPath)) {
+            return null;
+        }
+
+        return Files.readString(pemPath, StandardCharsets.UTF_8);
     }
 
     private static PrivateKey readPrivateKey(final String pem) throws Exception {
@@ -131,6 +157,11 @@ public final class RsaCrypts {
         return pem.replace("-----BEGIN " + type + "-----", "")
                 .replace("-----END " + type + "-----", "")
                 .replaceAll("\\s", "");
+    }
+
+    private static String toPrivatePem(final byte[] encoded) {
+        final String base64 = Base64.getMimeEncoder(64, "\n".getBytes(StandardCharsets.UTF_8)).encodeToString(encoded);
+        return "-----BEGIN PRIVATE KEY-----\n" + base64 + "\n-----END PRIVATE KEY-----";
     }
 
     private static String toPublicPem(final byte[] encoded) {

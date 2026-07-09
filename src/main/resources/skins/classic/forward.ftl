@@ -115,7 +115,7 @@
         init: function () {
             S.Drawing.init('.canvas')
             document.body.classList.add('body--ready')
-            var text = 'Sym'
+            var text = 'BlueBook'
             S.UI.simulate(text)
             S.Drawing.loop(function () {
                 S.Shape.render()
@@ -274,7 +274,7 @@
                         break
 
                     default:
-                        S.Shape.switchShape(S.ShapeBuilder.letter(current[0] === cmd ? 'Sym' : current))
+                        S.Shape.switchShape(S.ShapeBuilder.letter(current[0] === cmd ? 'BlueBook' : current))
                 }
             }, 2000, sequence.length)
         }

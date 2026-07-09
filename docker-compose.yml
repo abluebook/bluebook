@@ -20,8 +20,9 @@ services:
       RSA_PRIVATE_KEY_PATH: ${RSA_PRIVATE_KEY_PATH}
       RSA_PUBLIC_KEY_PATH: ${RSA_PUBLIC_KEY_PATH}
     volumes:
-      - upload-data:/root/sym/upload
-      # Generate and mount fixed RSA keys for production deployments:
+      - upload-data:/root/bluebook/upload
+      - rsa-data:/run/secrets
+      # To share fixed RSA keys across multiple instances, replace rsa-data with read-only file mounts:
       # - ./secrets/rsa_private.pem:/run/secrets/rsa_private.pem:ro
       # - ./secrets/rsa_public.pem:/run/secrets/rsa_public.pem:ro
     command:
@@ -61,3 +62,4 @@ services:
 volumes:
   mysql-data:
   upload-data:
+  rsa-data:
