@@ -1,0 +1,13 @@
+services:
+  symphony:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - upload-data:/root/sym/upload
+      # Hot-reload-ish frontend/template resources for quick UI testing.
+      # If FreeMarker/template cache is enabled, run: docker restart symphony
+      - ./src/main/resources/skins:/opt/sym/skins
+      - ./src/main/resources/js:/opt/sym/js
+      - ./src/main/resources/css:/opt/sym/css
+      - ./src/main/resources/scss:/opt/sym/scss
